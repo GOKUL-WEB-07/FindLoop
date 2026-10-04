@@ -35,3 +35,7 @@ The APK must be built and signed separately; this web project does not generate 
 FindLoop includes `public/manifest.json`, app icons, and an install option at `/download`. Deploy the production build over HTTPS (localhost is supported for development). Supporting browsers offer installation when their eligibility criteria are met; iOS users can use Safari > Share > Add to Home Screen. This installs the web app and does not require an APK.
 
 The service worker registers in production and serves a generic offline page if navigation fails. Listings, messages, and account operations still require internet access; private API data is not cached. Run `npm run build` and `npm run preview` to check the production install flow. Hosting must serve public files directly and rewrite application routes to `index.html`.
+
+## GitHub Pages
+
+In repository Settings > Pages, select GitHub Actions as the source. The included workflow builds and deploys dist when main changes. Add repository Actions secrets VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for authentication and data access. The Pages build uses /FindLoop/ and hash routes so navigation and refresh work on static hosting.

@@ -27,6 +27,6 @@ export function useInstall(){
 
 if(import.meta.env.PROD&&'serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    void navigator.serviceWorker.register('/sw.js').catch(error=>console.error('FindLoop service worker registration failed',error));
+    void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(error=>console.error('FindLoop service worker registration failed',error));
   });
 }
