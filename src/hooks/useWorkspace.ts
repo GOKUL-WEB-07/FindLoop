@@ -1,0 +1,12 @@
+import {useMutation,useQuery,useQueryClient} from '@tanstack/react-query'; import {confirmReturn,getDashboardCounts,getIncomingRequests,getMyBorrowing,getMyLending,getMyRequests,ownerCompleteLoan,requestReturn} from '../services/workspace'; import {getConversations,markConversationRead} from '../services/messages'; import {getNotifications,markAllNotificationsRead,markNotificationRead} from '../services/notifications';
+export const useDashboardCounts=()=>useQuery({queryKey:['dashboard-counts'],queryFn:getDashboardCounts});
+export const useMyRequests=()=>useQuery({queryKey:['my-requests'],queryFn:getMyRequests,refetchInterval:10000});
+export const useMyBorrowing=()=>useQuery({queryKey:['my-borrowing'],queryFn:getMyBorrowing,refetchInterval:10000});
+export const useMyLending=()=>useQuery({queryKey:['my-lending'],queryFn:getMyLending,refetchInterval:10000});
+export const useOwnerRequests=()=>useQuery({queryKey:['owner-requests'],queryFn:getIncomingRequests,refetchInterval:10000});
+export const useInbox=()=>useQuery({queryKey:['inbox'],queryFn:getConversations,refetchInterval:5000});
+export function useMarkConversationRead(){const q=useQueryClient();return useMutation({mutationFn:({listingId,peerId}:{listingId:string;peerId:string})=>markConversationRead(listingId,peerId),onSuccess:()=>q.invalidateQueries({queryKey:['inbox']})});}
+export const useNotifications=()=>useQuery({queryKey:['notifications'],queryFn:getNotifications,refetchInterval:30000});
+export function useReadNotification(){const q=useQueryClient();return useMutation({mutationFn:markNotificationRead,onSuccess:()=>q.invalidateQueries({queryKey:['notifications']})});}
+export function useReadAllNotifications(){const q=useQueryClient();return useMutation({mutationFn:markAllNotificationsRead,onSuccess:()=>q.invalidateQueries({queryKey:['notifications']})});}
+export function useReturnActions(){const q=useQueryClient();const done=()=>{q.invalidateQueries({queryKey:['my-borrowing']});q.invalidateQueries({queryKey:['my-lending']});q.invalidateQueries({queryKey:['items']});q.invalidateQueries({queryKey:['item']});q.invalidateQueries({queryKey:['notifications']});q.invalidateQueries({queryKey:['dashboard-counts']})};return{request:useMutation({mutationFn:requestReturn,onSuccess:done}),confirm:useMutation({mutationFn:confirmReturn,onSuccess:done}),ownerComplete:useMutation({mutationFn:ownerCompleteLoan,onSuccess:done})};}
