@@ -1,3 +1,4 @@
+import {ResetPassword} from '../pages/auth';
 import {DownloadPage} from '../pages/Download';
 import {Navigate,Route,Routes} from 'react-router-dom';
 import {ToastProvider} from '../components/feedback/ToastProvider';
@@ -11,6 +12,7 @@ const Private=({children}:{children:React.ReactNode})=><ProtectedRoute><Shell>{c
 function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();if(loading)return <div className="page-center">Loading…</div>;return user?<Navigate to="/" replace/>:<>{children}</>}
 
 export function App(){return <ToastProvider><AuthProvider><Routes>
+  <Route path="/reset-password" element={<ResetPassword/>}/>
   <Route path="/download" element={<DownloadPage/>}/>
   <Route path="/login" element={<PublicOnly><AuthPage mode="login"/></PublicOnly>}/>
   <Route path="/signup" element={<PublicOnly><AuthPage mode="signup"/></PublicOnly>}/>

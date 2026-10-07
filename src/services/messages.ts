@@ -1,3 +1,4 @@
+import {resolveListingMedia} from './media';
 import {supabase} from '../lib/supabase';
 import type {Conversation,Message} from '../types';
 const mediaUrls=new Map<string,{url:string;expires:number}>();
@@ -35,7 +36,7 @@ export async function sendMessage(listingId:string,recipientId:string,body:strin
     if(error){if(/bucket.*not found|nosuchbucket/i.test(error.message))throw new Error('Message media is not configured. Apply 007_fix_media_and_archiving.sql in Supabase.');if(/row-level|policy|unauthorized/i.test(error.message))throw new Error('You do not have permission to upload this attachment. Apply the latest storage policies.');throw new Error('Attachment upload failed. Please try again.');}
   }
   const{error}=await supabase.from('messages').insert({listing_id:listingId,sender_id:senderId,recipient_id:recipientId,body:clean||(attachment?.type==='photo'?'Photo':'Voice note'),...(path?{attachment_path:path,attachment_type:attachment!.type}:{})});
-  if(error){if(path)await supabase.storage.from('message-attachments').remove([path]);if(/attachment_path|attachment_type|schema cache/i.test(error.message))throw new Error('Message media is not configured. Apply 007_fix_media_and_archiving.sql in Supabase.');throw new Error('Message could not be sent. Please try again.');}
+  if(error){if(path)await supabase.storage.from('message-attachments').remove([path]);if(/attachment_path|attachment_type|schema cache/i.test(error.message))throw new Error('Message media is not configured. Apply 007_fix_media_and_archiving.sql in Supabase.');throw new Error(error.message||'Message could not be sent. Please try again.');}
 }
 
 export async function getConversations():Promise<Conversation[]>{
@@ -45,8 +46,8 @@ export async function getConversations():Promise<Conversation[]>{
   const groups=[...grouped.values()];if(!groups.length)return [];
   const profileIds=[...new Set(groups.map(g=>g.peerId))];const listingIds=[...new Set(groups.map(g=>g.listingId))];
   const[profiles,listings]=await Promise.all([supabase.from('profiles').select('id,full_name').in('id',profileIds),supabase.from('lost_found_items').select('id,item_name,image_urls').in('id',listingIds)]);
-  if(profiles.error)throw profiles.error;if(listings.error)throw listings.error;
-  return groups.map(g=>({listingId:g.listingId,peerId:g.peerId,peerName:profiles.data?.find(p=>p.id===g.peerId)?.full_name||'Campus member',listingTitle:listings.data?.find(i=>i.id===g.listingId)?.item_name||'Item conversation',listingImage:listings.data?.find(i=>i.id===g.listingId)?.image_urls?.[0],lastMessage:g.last.body,lastMessageAt:g.last.created_at,unread:g.unread}));
+  if(profiles.error)throw profiles.error;if(listings.error)throw listings.error;const listingMedia=await Promise.all((listings.data??[]).map(resolveListingMedia));
+  return groups.map(g=>({listingId:g.listingId,peerId:g.peerId,peerName:profiles.data?.find(p=>p.id===g.peerId)?.full_name||'Campus member',listingTitle:listingMedia.find(i=>i.id===g.listingId)?.item_name||'Item conversation',listingImage:listingMedia.find(i=>i.id===g.listingId)?.image_urls?.[0],lastMessage:g.last.body,lastMessageAt:g.last.created_at,unread:g.unread}));
 }
 
-export async function markConversationRead(listingId:string,peerId:string){if(!supabase)return;const me=await currentUserId();const{error}=await supabase.from('messages').update({read_at:new Date().toISOString()}).eq('listing_id',listingId).eq('sender_id',peerId).eq('recipient_id',me).is('read_at',null);if(error&&(/read_at|schema cache/i.test(error.message)))return;if(error)throw error;}
+export async function markConversationRead(listingId:string,peerId:string){if(!supabase)return;const me=await currentUserId();const{error}=await supabase.from('messages').update({read_at:new Date().toISOString()}).eq('listing_id',listingId).eq('sender_id',peerId).eq('recipient_id',me).is('read_at',null);if(error)throw error;}

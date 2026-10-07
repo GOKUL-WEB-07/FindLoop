@@ -6,7 +6,8 @@ export async function updateProfile(input:ProfileInput){
   if(!supabase)throw new Error('Supabase is not configured.');
   const{data:{user}}=await supabase.auth.getUser();
   if(!user)throw new Error('Please sign in again.');
-  const{data:current}=await supabase.from('profiles').select('avatar_url').eq('id',user.id).maybeSingle();
+  const{data:current,error:readError}=await supabase.from('profiles').select('avatar_url').eq('id',user.id).maybeSingle();
+  if(readError)throw readError;if(!current)throw new Error('Your profile is missing. Please contact support.');
   let avatarUrl=current?.avatar_url as string|undefined;
   let uploadedPath:string|undefined;
   if(input.avatar){
@@ -20,7 +21,8 @@ export async function updateProfile(input:ProfileInput){
     avatarUrl=supabase.storage.from('avatars').getPublicUrl(uploadedPath).data.publicUrl;
   }
   const{avatar,...fields}=input;
-  const{error}=await supabase.from('profiles').update({...fields,avatar_url:avatarUrl||null,updated_at:new Date().toISOString()}).eq('id',user.id);
+  const{data:saved,error}=await supabase.from('profiles').update({...fields,avatar_url:avatarUrl||null,updated_at:new Date().toISOString()}).eq('id',user.id).select('id').maybeSingle();
+  if(!error&&!saved)throw new Error('Your profile could not be saved.');
   if(error){if(uploadedPath)await supabase.storage.from('avatars').remove([uploadedPath]);throw error;}
   const authResult=await supabase.auth.updateUser({data:{full_name:input.full_name,avatar_url:avatarUrl||null}});
   if(authResult.error)throw authResult.error;

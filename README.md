@@ -5,7 +5,7 @@ A responsive campus lost-and-found and borrow-and-lend application built with Re
 ## Run locally
 
 1. Copy `.env.example` to `.env` and set your Supabase URL and anonymous key.
-2. In Supabase SQL Editor, run every file in `supabase/migrations` in numeric order (`001` through `004`).
+2. In Supabase SQL Editor, apply the baseline migrations `001` through `010`, then the timestamped repair migrations in filename order. Existing projects should apply only repairs that are missing; the connected project already has the repair migrations recorded.
 3. Run `npm install` then `npm run dev`.
 
 Without environment variables, the browsing interface renders safe local sample listings; authentication and writes intentionally require Supabase.
@@ -20,7 +20,7 @@ Without environment variables, the browsing interface renders safe local sample 
 
 ## Supabase configuration
 
-Create public `avatars` and `item-images` Storage buckets before enabling uploads. Configure the Auth redirect URL to your local/dev or production URL, including `/reset-password`.
+The repair migration configures public `avatars` and private `item-images`, `student-id-cards`, and `message-attachments` Storage buckets. Listing photos and student IDs use authenticated signed URLs. Student IDs are readable by the uploader and the owner reviewing that request. Deploy the updated frontend before relying on old public image URLs. Configure the Site URL to your deployed app and allow its origin/base path plus local port 5174 reset URLs in Auth > URL Configuration.
 
 The migrations create profiles, lost/found listings, lending listings, request verification, transactions, messages, notifications, storage policies, and atomic approval/return functions. All migrations must be applied for the current interface to work.
 
