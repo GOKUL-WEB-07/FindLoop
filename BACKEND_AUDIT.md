@@ -19,6 +19,7 @@ Applied migrations: 20261007151744_repair_missing_backend_workflows and 20261007
 
 ## Application fixes
 
+- Lending discovery lists only available items, excluding archived and unavailable listings.
 - Private ID uploads and signed media links, including existing ID URLs.
 - Failed-request upload cleanup, consistent image MIME checks, duplicate-request errors, and detection of zero-row edits/deletes.
 - Return-requested loans remain visible; transaction errors are reported rather than hidden behind synthetic loans.
@@ -41,4 +42,4 @@ Reproducible SQL checks are in supabase/tests/backend_workflows.sql and supabase
 
 Auth Site URL was repaired to https://gokul-web-07.github.io/FindLoop/. Five exact redirect URLs were saved for the production base path and localhost/127.0.0.1 on port 5174, including reset-password. The updated frontend supports the repaired backend and private media on GitHub Pages. Both changes were explicitly approved.
 
-The security advisor reports the six authenticated workflow RPCs because they deliberately use SECURITY DEFINER for atomic cross-user transitions; their caller/ownership checks were verified. Anonymous privileged RPC exposure is removed. Leaked-password protection remains disabled and needs to be enabled through Supabase Auth if supported by the project's plan. Performance notices are only unused-index observations on this small dataset; useful indexes were retained.
+The security advisor reports the six authenticated workflow RPCs because they deliberately use SECURITY DEFINER for atomic cross-user transitions; their caller/ownership checks were verified. Anonymous privileged RPC exposure is removed. Leaked-password protection remains disabled: the Supabase dashboard confirms this feature requires Pro or above, while this project uses the Free plan. Performance notices are only unused-index observations on this small dataset; useful indexes were retained.
