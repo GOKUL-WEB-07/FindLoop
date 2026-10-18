@@ -6,7 +6,7 @@ Reviewed all source areas: routes/auth, dashboard, lost/found, lending discovery
 - Failed workspace/profile/edit queries display errors rather than false empty states. Return and notification mutations expose failures; return buttons prevent repeat submissions.
 - Keyboard activation on nested action buttons no longer opens the surrounding lending row.
 - Lost/found filters honor query-string links and browser history. The incoming-request route opens the correct tab. Sign-in preserves the originally requested route and query.
-- Date-only values render as local calendar days; today’s loans remain current throughout the due date. New listings default to the local date.
+- Date-only values render as local calendar days; today’s loans remain current throughout the due date. Return-requested status remains visible even after the due date. New listings default to the local date.
 - A missing/inaccessible private image no longer hides an entire page. Unavailable verification images are labeled without exposing raw storage paths. Incoming ID signing is limited to pending reviews.
 - Profile cancellation discards unsaved fields/photos. Failed zero-row profile saves clean up uploaded avatars; successful profile writes remain successful if display-metadata synchronization fails.
 - Potential-match lost/found listings can be marked recovered/returned. New uploads reject empty files and use MIME-derived extensions. Listing fields validate database length/integer limits; photo previews are released on unmount.
