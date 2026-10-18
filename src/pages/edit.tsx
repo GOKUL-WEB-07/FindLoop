@@ -11,7 +11,7 @@ export function EditListing({kind}:{kind:'lost'|'lend'}){
   const{id=''}=useParams();
   const nav=useNavigate();
   const{user}=useAuth();
-  const{data:item,isLoading}=useItem(id,kind);
+  const{data:item,isLoading,error}=useItem(id,kind);
   const update=useUpdateItem();
   const[photo,setPhoto]=useState<File>();
   const[preview,setPreview]=useState('');
@@ -30,6 +30,7 @@ export function EditListing({kind}:{kind:'lost'|'lend'}){
   },[photo,item?.image_url]);
 
   if(isLoading)return <LoadingCards/>;
+  if(error)return <Empty title="Could not load this listing" copy={error.message}/>;
   if(!item||item.owner_id!==user?.id)return <Empty title="Listing unavailable" copy="Only the listing owner can edit this item." action={{to:kind==='lend'?'/app/lending':'/app/lost-found',label:'Back to listings'}}/>;
 
   function selectPhoto(file?:File){

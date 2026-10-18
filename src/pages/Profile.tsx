@@ -1,13 +1,13 @@
 import {Camera} from 'lucide-react';
 import {useEffect,useState} from 'react';
-import {LoadingCards,PageIntro} from '../components/ui';
+import {Empty,LoadingCards,PageIntro} from '../components/ui';
 import {useAuth} from '../features/auth/AuthContext';
 import {useProfile,useUpdateProfile} from '../hooks/useProfile';
 import {useDashboardCounts} from '../hooks/useWorkspace';
 
 export function Profile(){
   const{user}=useAuth();
-  const{data:profile,isLoading}=useProfile();
+  const{data:profile,isLoading,error}=useProfile();
   const{data:counts}=useDashboardCounts();
   const update=useUpdateProfile();
   const[editing,setEditing]=useState(false);
@@ -19,6 +19,7 @@ export function Profile(){
   useEffect(()=>setF({full_name:profile?.full_name||user?.user_metadata.full_name||'',department:profile?.department||'',academic_year:profile?.academic_year||'',bio:profile?.bio||''}),[profile,user]);
   useEffect(()=>{if(!avatar){setAvatarPreview(profile?.avatar_url||'');return;}const url=URL.createObjectURL(avatar);setAvatarPreview(url);return()=>URL.revokeObjectURL(url)},[avatar,profile?.avatar_url]);
   if(isLoading)return <LoadingCards/>;
+  if(error)return <Empty title="Could not load your profile" copy={error.message}/>;
 
   function chooseAvatar(file?:File){
     setAvatarError('');
@@ -35,7 +36,7 @@ export function Profile(){
     <section className="profile-card">
       <div className="profile-avatar">{avatarPreview?<img src={avatarPreview} alt={`${f.full_name||'User'} profile`}/>:initial}</div>
       <div><h2>{f.full_name||'Campus member'}</h2><p>{user?.email}</p><p className="muted">{f.department||'Add your department'} {f.academic_year&&`· ${f.academic_year}`}</p></div>
-      <button className="button secondary" onClick={()=>setEditing(value=>!value)}>{editing?'Cancel':'Edit profile'}</button>
+      <button className="button secondary" onClick={()=>{if(editing){setF({full_name:profile?.full_name||'',department:profile?.department||'',academic_year:profile?.academic_year||'',bio:profile?.bio||''});setAvatar(undefined);setAvatarError('');}setEditing(value=>!value)}}>{editing?'Cancel':'Edit profile'}</button>
     </section>
     {editing&&<form className="form-card profile-form" onSubmit={save}>
       <label className="avatar-picker"><span className="profile-avatar preview">{avatarPreview?<img src={avatarPreview} alt="Profile preview"/>:initial}</span><span><b><Camera size={16}/> Choose profile photo</b><small>JPG, PNG or WebP · up to 3 MB</small></span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={event=>{chooseAvatar(event.target.files?.[0]);event.target.value=''}}/></label>

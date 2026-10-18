@@ -16,11 +16,11 @@ export async function signedMediaUrl(bucket:string,pathOrUrl:string):Promise<str
 }
 export async function resolveListingMedia<T extends {image_urls?:string[];image_url?:string}>(item:T):Promise<T>{
  if(!item.image_urls?.length)return item;
- const image_urls=await Promise.all(item.image_urls.map(url=>signedMediaUrl('item-images',url)));
+ const image_urls=(await Promise.all(item.image_urls.map(url=>signedMediaUrl('item-images',url).catch(()=>null)))).filter((url):url is string=>url!==null);
  return {...item,image_urls,image_url:image_urls[0]};
 }
 export async function resolveRequestMedia<T extends {student_id_card_url?:string|null;lending_items?:{image_urls?:string[]}|null}>(request:T):Promise<T>{
  const value=request.student_id_card_url;
  return {...request,lending_items:request.lending_items?await resolveListingMedia(request.lending_items):request.lending_items,
- student_id_card_url:value?await signedMediaUrl(value.includes('/item-images/')?'item-images':'student-id-cards',value):value};
+ student_id_card_url:value?await signedMediaUrl(value.includes('/item-images/')?'item-images':'student-id-cards',value).catch(()=>null):value};
 }

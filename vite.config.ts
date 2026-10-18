@@ -8,7 +8,7 @@ export default defineConfig({
   plugins:[react({fastRefresh:false})],
   server:{
     host:'127.0.0.1',
-    port:5173,
+    port:5174,
     strictPort:true,
     hmr:false,
     headers:{'Cache-Control':'no-store'},

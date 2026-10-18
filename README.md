@@ -6,7 +6,9 @@ A responsive campus lost-and-found and borrow-and-lend application built with Re
 
 1. Copy `.env.example` to `.env` and set your Supabase URL and anonymous key.
 2. In Supabase SQL Editor, apply the baseline migrations `001` through `010`, then the timestamped repair migrations in filename order. Existing projects should apply only repairs that are missing; the connected project already has the repair migrations recorded.
-3. Run `npm install` then `npm run dev`.
+3. Run `npm install` then `npm run dev`. Open http://127.0.0.1:5174/.
+
+Run `npm test` for service regression tests and `npm run build` for TypeScript and production-build validation. See [APP_AUDIT.md](APP_AUDIT.md) for the latest app-wide review and its verification limits.
 
 Without environment variables, the browsing interface renders safe local sample listings; authentication and writes intentionally require Supabase.
 

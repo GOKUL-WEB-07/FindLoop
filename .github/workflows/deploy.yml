@@ -20,6 +20,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Service regression tests
+        run: npm test
       - name: Build configured app
         run: |
           node -e "if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) { console.error('Supabase deployment configuration is missing'); process.exit(1); }"

@@ -18,9 +18,9 @@ export async function createItem(item:Omit<Item,'id'|'created_at'|'owner_id'|'st
   let uploadedPath:string|undefined;
   if(item.image){
     if(!['image/jpeg','image/png','image/webp'].includes(item.image.type))throw new Error('Choose a JPG, PNG or WebP photo.');
-    if(item.image.size>5*1024*1024)throw new Error('Images must be 5 MB or smaller.');
-    const ext=item.image.name.split('.').pop()||'jpg';
-    uploadedPath=`${user.id}/${crypto.randomUUID()}.${ext}`;
+    if(!item.image.size||item.image.size>5*1024*1024)throw new Error('Images must be 5 MB or smaller.');
+    const ext:Record<string,string>={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+    uploadedPath=`${user.id}/${crypto.randomUUID()}.${ext[item.image.type]}`;
     const{error:uploadError}=await supabase.storage.from('item-images').upload(uploadedPath,item.image,{contentType:item.image.type,upsert:false});
     if(uploadError)throw new Error('Photo upload failed. Check the item-images storage setup and try again.');
     imageUrls=[supabase.storage.from('item-images').getPublicUrl(uploadedPath).data.publicUrl];
@@ -39,7 +39,7 @@ export async function createItem(item:Omit<Item,'id'|'created_at'|'owner_id'|'st
     throw error;
   }
 }
-export async function markFoundItemRecovered(input:string|{id:string;kind:'lost'|'found'}){if(!supabase)throw new Error('Supabase is not configured.');const id=typeof input==='string'?input:input.id;const kind=typeof input==='string'?'lost':input.kind;const{data,error}=await supabase.from('lost_found_items').update({status:kind==='found'?'returned':'recovered',updated_at:new Date().toISOString()}).eq('id',id).eq('listing_type',kind).eq('status','active').select('id').maybeSingle();if(error)throw error;if(!data)throw new Error('This listing is no longer active or you cannot change it.');}
+export async function markFoundItemRecovered(input:string|{id:string;kind:'lost'|'found'}){if(!supabase)throw new Error('Supabase is not configured.');const id=typeof input==='string'?input:input.id;const kind=typeof input==='string'?'lost':input.kind;const{data,error}=await supabase.from('lost_found_items').update({status:kind==='found'?'returned':'recovered',updated_at:new Date().toISOString()}).eq('id',id).eq('listing_type',kind).in('status',['active','potential_match']).select('id').maybeSingle();if(error)throw error;if(!data)throw new Error('This listing is no longer active or you cannot change it.');}
 export type ItemUpdate={id:string;kind:Item['kind'];title:string;category:string;description:string;location:string;date:string;condition?:string;max_duration?:number;library_name?:string;image?:File};
 export async function updateItem(input:ItemUpdate){
   if(!supabase)throw new Error('Supabase is not configured.');

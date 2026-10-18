@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { Profile } from '../types';
 export type ProfileInput={full_name:string;department?:string;academic_year?:string;bio?:string;avatar?:File};
-export async function getProfile():Promise<Profile|null>{if(!supabase)return null;const {data:{user}}=await supabase.auth.getUser();if(!user)return null;const{data,error}=await supabase.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;return data;}
+export async function getProfile():Promise<Profile|null>{if(!supabase)return null;const {data:{user},error:authError}=await supabase.auth.getUser();if(authError)throw authError;if(!user)throw new Error('Please sign in again.');const{data,error}=await supabase.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;return data;}
 export async function updateProfile(input:ProfileInput){
   if(!supabase)throw new Error('Supabase is not configured.');
   const{data:{user}}=await supabase.auth.getUser();
@@ -22,9 +22,9 @@ export async function updateProfile(input:ProfileInput){
   }
   const{avatar,...fields}=input;
   const{data:saved,error}=await supabase.from('profiles').update({...fields,avatar_url:avatarUrl||null,updated_at:new Date().toISOString()}).eq('id',user.id).select('id').maybeSingle();
-  if(!error&&!saved)throw new Error('Your profile could not be saved.');
-  if(error){if(uploadedPath)await supabase.storage.from('avatars').remove([uploadedPath]);throw error;}
+  if(error||!saved){if(uploadedPath)await supabase.storage.from('avatars').remove([uploadedPath]);throw error||new Error('Your profile could not be saved.');}
   const authResult=await supabase.auth.updateUser({data:{full_name:input.full_name,avatar_url:avatarUrl||null}});
-  if(authResult.error)throw authResult.error;
+  // The saved profile is authoritative; metadata sync must not report a saved edit as failed.
+  if(authResult.error)console.warn('Profile saved, but account display metadata could not be refreshed.');
   if(uploadedPath&&current?.avatar_url){const marker='/storage/v1/object/public/avatars/';const oldPath=current.avatar_url.includes(marker)?decodeURIComponent(current.avatar_url.split(marker)[1]):'';if(oldPath)await supabase.storage.from('avatars').remove([oldPath]);}
 }

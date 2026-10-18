@@ -1,6 +1,6 @@
 import {ResetPassword} from '../pages/auth';
 import {DownloadPage} from '../pages/Download';
-import {Navigate,Route,Routes} from 'react-router-dom';
+import {Navigate,Route,Routes,useLocation} from 'react-router-dom';
 import {ToastProvider} from '../components/feedback/ToastProvider';
 import {Shell} from '../components/layout/Shell';
 import {AuthProvider,useAuth} from '../features/auth/AuthContext';
@@ -9,7 +9,7 @@ import {AuthPage,Detail,EditListing,ForgotPassword,Home,Listings,NewListing,Prof
 import {Borrowing,Lending,MessagesPage,MessageThread,NotificationsPage} from '../pages/workspace';
 
 const Private=({children}:{children:React.ReactNode})=><ProtectedRoute><Shell>{children}</Shell></ProtectedRoute>;
-function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();if(loading)return <div className="page-center">Loading…</div>;return user?<Navigate to="/" replace/>:<>{children}</>}
+function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();const location=useLocation();const from=(location.state as {from?:string}|null)?.from;const returnTo=from?.startsWith('/')&&!from.startsWith('//')?from:'/';if(loading)return <div className="page-center">Loading…</div>;return user?<Navigate to={returnTo} replace/>:<>{children}</>}
 
 export function App(){return <ToastProvider><AuthProvider><Routes>
   <Route path="/reset-password" element={<ResetPassword/>}/>
@@ -29,7 +29,7 @@ export function App(){return <ToastProvider><AuthProvider><Routes>
   <Route path="/app/borrow/:id" element={<Private><Detail kind="lend"/></Private>}/>
   <Route path="/app/borrow/:id/edit" element={<Private><EditListing kind="lend"/></Private>}/>
   <Route path="/app/requests" element={<Navigate to="/app/notifications?tab=my-requests" replace/>}/>
-  <Route path="/app/incoming" element={<Navigate to="/app/notifications" replace/>}/>
+  <Route path="/app/incoming" element={<Navigate to="/app/notifications?tab=requests" replace/>}/>
   <Route path="/app/borrowing" element={<Private><Borrowing/></Private>}/>
   <Route path="/app/lending" element={<Private><Lending/></Private>}/>
   <Route path="/app/lending/:id" element={<Private><Detail kind="lend"/></Private>}/>
