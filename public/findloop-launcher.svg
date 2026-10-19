@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" fill="none">
+  <title>FindLoop</title>
+  <!-- Transparent, with a white keyline so the dark mark survives dark launchers. -->
+  <defs><g id="mark" stroke-linecap="round" stroke-linejoin="round"><path d="M68 27A31 31 0 1 0 73 49"/><path d="M54 26h15V11"/><path d="M31 59V30h20M31 44h15"/></g></defs>
+  <g transform="translate(44 44) scale(.84) translate(-44 -44)">
+    <use href="#mark" stroke="#fff" stroke-width="11"/>
+    <use href="#mark" stroke="#111214" stroke-width="5.5"/>
+  </g>
+</svg>
