@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#151519" />
     <meta name="description" content="FindLoop - Campus Borrow and Lost Item Tracker" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111214'/%3E%3Cpath d='M18 18h13c8 0 15 6 15 14S39 46 31 46H18V18Zm10 8v12h3c4 0 7-2 7-6s-3-6-7-6h-3Z' fill='white'/%3E%3C/svg%3E" />
-    <link rel="manifest" href="%BASE_URL%manifest.json" />
-    <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-180.png" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%findloop-symbol.svg" />
+    <link rel="manifest" href="%BASE_URL%manifest.json?v=brand-2" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/findloop-180-v2.png" />
     <meta name="apple-mobile-web-app-title" content="FindLoop" />
     <title>FindLoop</title>
+  <style>.startup-splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;background:#f1f2f3;color:#6f7279;font:14px system-ui,sans-serif}.startup-splash img{width:min(300px,72vw);height:auto;background:none}</style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="startup-splash" role="status"><img src="%BASE_URL%findloop-logo.svg" width="300" height="73" alt="FindLoop" /><span>Loading your campus space…</span></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

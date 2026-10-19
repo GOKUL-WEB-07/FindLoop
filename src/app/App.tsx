@@ -1,3 +1,4 @@
+import {BrandSplash} from '../components/BrandLogo';
 import {ResetPassword} from '../pages/auth';
 import {BrandWatermark} from '../components/BrandWatermark';
 import {DownloadPage} from '../pages/Download';
@@ -10,7 +11,7 @@ import {AuthPage,Detail,EditListing,ForgotPassword,Home,Listings,NewListing,Prof
 import {RequestInbox,Borrowing,Lending,MessagesPage,MessageThread,NotificationsPage} from '../pages/workspace';
 
 const Private=({children}:{children:React.ReactNode})=><ProtectedRoute><Shell>{children}</Shell></ProtectedRoute>;
-function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();const location=useLocation();const from=(location.state as {from?:string}|null)?.from;const returnTo=from?.startsWith('/')&&!from.startsWith('//')?from:'/';if(loading)return <div className="page-center">Loading…</div>;return user?<Navigate to={returnTo} replace/>:<>{children}</>}
+function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();const location=useLocation();const from=(location.state as {from?:string}|null)?.from;const returnTo=from?.startsWith('/')&&!from.startsWith('//')?from:'/';if(loading)return <BrandSplash/>;return user?<Navigate to={returnTo} replace/>:<>{children}</>}
 
 export function App(){return <ToastProvider><BrandWatermark/><AuthProvider><Routes>
   <Route path="/reset-password" element={<ResetPassword/>}/>

@@ -1,3 +1,4 @@
+import {BrandLogo} from '../components/BrandLogo';
 import {useState} from 'react';
 import {useInstall} from '../lib/install';
 import {ArrowLeft,Download,Smartphone} from 'lucide-react';
@@ -17,7 +18,7 @@ export function DownloadPage(){
   const {state,install}=useInstall();
   const [error,setError]=useState('');
   return <div className="auth apk-page">
-    <Link className="brand" to="/"><span>FL</span> FindLoop</Link>
+    <Link className="brand" to="/"><BrandLogo/></Link>
     <section className="auth-card" aria-labelledby="apk-title">
       <Smartphone size={36} aria-hidden="true"/>
       <p className="eyebrow">INSTALL FINDLOOP</p>
