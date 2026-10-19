@@ -234,3 +234,9 @@ aside nav a.active{background:#fff;color:#111214;box-shadow:0 7px 20px rgba(0,0,
 
 /* Android app download */
 .apk-page .auth-card{display:grid;gap:18px}.apk-page .auth-card>p,.apk-page .auth-card>h1{margin:0}.apk-download{width:100%;gap:9px}.apk-download:disabled{opacity:.55;cursor:not-allowed}.apk-page .apk-note{font-size:13px;line-height:1.65;color:var(--muted)}.apk-page .back{gap:8px}.apk-auth-link{display:block;text-align:center;margin-top:18px;font-size:13px;text-decoration:underline;text-underline-offset:4px}
+
+/* Transparent FindLoop logo across every route, without a tile or backdrop. */
+.app-watermark{position:fixed;right:28px;bottom:24px;width:clamp(150px,17vw,230px);aspect-ratio:364 / 88;z-index:35;pointer-events:none;user-select:none;background:var(--text);opacity:.085;mask-repeat:no-repeat;mask-position:center;mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain}
+body:has(.auth) .app-watermark{background:#fff;opacity:.12}
+@media(max-width:800px){.app-watermark{right:16px;bottom:calc(96px + env(safe-area-inset-bottom,0px));width:148px;opacity:.07}body:has(.auth) .app-watermark{bottom:calc(18px + env(safe-area-inset-bottom,0px));opacity:.1}}
+@media print{.app-watermark{position:fixed;opacity:.08}}

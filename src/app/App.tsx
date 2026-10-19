@@ -1,4 +1,5 @@
 import {ResetPassword} from '../pages/auth';
+import {BrandWatermark} from '../components/BrandWatermark';
 import {DownloadPage} from '../pages/Download';
 import {Navigate,Route,Routes,useLocation} from 'react-router-dom';
 import {ToastProvider} from '../components/feedback/ToastProvider';
@@ -11,7 +12,7 @@ import {RequestInbox,Borrowing,Lending,MessagesPage,MessageThread,NotificationsP
 const Private=({children}:{children:React.ReactNode})=><ProtectedRoute><Shell>{children}</Shell></ProtectedRoute>;
 function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();const location=useLocation();const from=(location.state as {from?:string}|null)?.from;const returnTo=from?.startsWith('/')&&!from.startsWith('//')?from:'/';if(loading)return <div className="page-center">Loading…</div>;return user?<Navigate to={returnTo} replace/>:<>{children}</>}
 
-export function App(){return <ToastProvider><AuthProvider><Routes>
+export function App(){return <ToastProvider><BrandWatermark/><AuthProvider><Routes>
   <Route path="/reset-password" element={<ResetPassword/>}/>
   <Route path="/download" element={<DownloadPage/>}/>
   <Route path="/login" element={<PublicOnly><AuthPage mode="login"/></PublicOnly>}/>

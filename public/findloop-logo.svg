@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 364 88" fill="none">
+  <title>FindLoop</title>
+  <g stroke="#111214" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M68 27A31 31 0 1 0 73 49"/>
+    <path d="M54 26h15V11"/>
+    <path d="M31 59V30h20M31 44h15"/>
+  </g>
+  <text x="96" y="59" fill="#111214" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-size="48" font-weight="750" letter-spacing="-2">FindLoop</text>
+</svg>
