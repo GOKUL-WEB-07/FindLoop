@@ -1,5 +1,5 @@
 // Cache only a generic offline page; private API responses stay on the network.
-const CACHE='findloop-offline-v2-'+self.registration.scope;
+const CACHE='findloop-offline-v3-'+self.registration.scope;
 const OFFLINE=new URL('offline.html',self.registration.scope).href;
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.add(OFFLINE)));
