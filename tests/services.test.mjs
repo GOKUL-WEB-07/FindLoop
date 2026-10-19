@@ -57,3 +57,38 @@ test('lost/found recovery accepts potential matches and still rejects zero-row e
   assert.ok(filters.some(([field,values])=>field==='status'&&values.includes('potential_match')));
   saved=null;await assert.rejects(items.markFoundItemRecovered({id:'item',kind:'found'}),/no longer active/);
 });
+
+test('borrow alerts open lender review and approval alerts open Borrowed',async()=>{
+  const {notificationTarget}=await loadService('lib/notificationTarget',null);
+  assert.equal(notificationTarget({type:'borrow_request'}),'/app/incoming');
+  assert.equal(notificationTarget({type:'borrow_approved'}),'/app/borrowing');
+  assert.equal(notificationTarget({type:'borrow_rejected'}),'/app/notifications?tab=my-requests');
+});
+
+test('approved loan service includes current, scheduled, and awaiting-return loans for the borrower',async()=>{
+  const calls=[];
+  const row={id:'loan',borrower_id:'borrower',status:'scheduled',lending_items:{title:'Approved book',image_urls:[]}};
+  const query={select:()=>query,eq:(...v)=>{calls.push(['eq',...v]);return query;},in:(...v)=>{calls.push(['in',...v]);return query;},order:async()=>({data:[row],error:null})};
+  const passthrough='data:text/javascript,export const resolveListingMedia=async x=>x;export const resolveRequestMedia=async x=>x;';
+  const workspace=await loadService('services/workspace',{auth:{getUser:async()=>({data:{user:{id:'borrower'}}})},from:table=>{calls.push(['from',table]);return query;}},{'./media':passthrough});
+  const loans=await workspace.getMyBorrowing();
+  assert.equal(loans[0].lending_items.title,'Approved book');
+  assert.deepEqual(calls.find(([op])=>op==='eq'),['eq','borrower_id','borrower']);
+  assert.deepEqual(calls.find(([op])=>op==='in'),['in','status',['scheduled','active','return_requested']]);
+});
+
+test('borrow submission confirms the saved request and approval calls the transactional workflow',async()=>{
+  let inserted;let approved;
+  const now=new Date();const start=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  const endDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  const end=[endDate.getFullYear(),String(endDate.getMonth()+1).padStart(2,'0'),String(endDate.getDate()).padStart(2,'0')].join('-');
+  const client={auth:{getUser:async()=>({data:{user:{id:'borrower'}}})},
+    from:table=>table==='lending_items'?{select:()=>({eq:()=>({single:async()=>({data:{owner_id:'lender',status:'available',available_from:start,max_borrow_days:7},error:null})})})}:{insert:values=>{inserted=values;return {select:()=>({single:async()=>({data:{id:'request',item_id:values.item_id,status:'pending'},error:null})})};}},
+    rpc:async(name,args)=>{approved=[name,args];return {error:null};}};
+  const borrowing=await loadService('services/borrowing',client,{'./workspace':'data:text/javascript,export const getIncomingRequests=async()=>[];'});
+  const result=await borrowing.requestBorrow({itemId:'item',startDate:start,returnDate:end,studentName:' Student ',studentEmail:' Student@Campus.invalid ',message:' Please lend '});
+  assert.equal(result.id,'request');assert.equal(result.status,'pending');
+  assert.equal(inserted.borrower_id,'borrower');assert.equal(inserted.student_name,'Student');assert.equal(inserted.message,'Please lend');
+  await borrowing.approveRequest(result.id);
+  assert.deepEqual(approved,['approve_borrow_request',{p_request_id:'request'}]);
+});

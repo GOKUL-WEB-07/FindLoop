@@ -1,5 +1,13 @@
 # FindLoop app audit — 18 October 2026
 
+## Borrow request delivery repair — 19 October 2026
+
+The notifications table was absent from `supabase_realtime`, preventing live request/approval alerts. Added an idempotent migration publishing notifications while retaining recipient RLS. Added a direct Borrow requests route/sidebar entry and review links on lending pages. Request notifications now open lender review; approval notifications and approved outgoing requests open Borrowed. Submission confirms the saved request and shows feedback. Approval invalidates loan/request caches; reconnect refresh and 10-second polling cover missed events.
+
+Eight rollback-only database checks passed for lender notification visibility, incoming request queries, current and future approval, borrower loan/item visibility, approval notifications, and outsider denial. Seven service regression tests and production builds passed. Existing users' requests and loans were not approved or changed during these checks.
+
+Borrow requests are reviewed in **Borrow requests** or **Notifications → Incoming**; the **Messages** inbox remains for lost/found conversations. Clicking Request to borrow opens the form; completing it and pressing Send borrow request submits the request.
+
 Reviewed all source areas: routes/auth, dashboard, lost/found, lending discovery and editing, borrow approvals and returns, profile/avatar editing, conversations and attachments, notifications, installation/offline handling, build/deployment configuration, dependencies, and live Supabase access rules.
 
 ## Repairs

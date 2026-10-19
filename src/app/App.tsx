@@ -6,7 +6,7 @@ import {Shell} from '../components/layout/Shell';
 import {AuthProvider,useAuth} from '../features/auth/AuthContext';
 import {ProtectedRoute} from '../features/auth/ProtectedRoute';
 import {AuthPage,Detail,EditListing,ForgotPassword,Home,Listings,NewListing,Profile} from '../pages';
-import {Borrowing,Lending,MessagesPage,MessageThread,NotificationsPage} from '../pages/workspace';
+import {RequestInbox,Borrowing,Lending,MessagesPage,MessageThread,NotificationsPage} from '../pages/workspace';
 
 const Private=({children}:{children:React.ReactNode})=><ProtectedRoute><Shell>{children}</Shell></ProtectedRoute>;
 function PublicOnly({children}:{children:React.ReactNode}){const{user,loading}=useAuth();const location=useLocation();const from=(location.state as {from?:string}|null)?.from;const returnTo=from?.startsWith('/')&&!from.startsWith('//')?from:'/';if(loading)return <div className="page-center">Loading…</div>;return user?<Navigate to={returnTo} replace/>:<>{children}</>}
@@ -29,7 +29,7 @@ export function App(){return <ToastProvider><AuthProvider><Routes>
   <Route path="/app/borrow/:id" element={<Private><Detail kind="lend"/></Private>}/>
   <Route path="/app/borrow/:id/edit" element={<Private><EditListing kind="lend"/></Private>}/>
   <Route path="/app/requests" element={<Navigate to="/app/notifications?tab=my-requests" replace/>}/>
-  <Route path="/app/incoming" element={<Navigate to="/app/notifications?tab=requests" replace/>}/>
+  <Route path="/app/incoming" element={<Private><RequestInbox/></Private>}/>
   <Route path="/app/borrowing" element={<Private><Borrowing/></Private>}/>
   <Route path="/app/lending" element={<Private><Lending/></Private>}/>
   <Route path="/app/lending/:id" element={<Private><Detail kind="lend"/></Private>}/>

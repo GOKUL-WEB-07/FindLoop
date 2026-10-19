@@ -11,7 +11,7 @@ import {useToast} from '../feedback/ToastProvider';
 const links=[
   ['/', 'Overview', House], ['/app/lost-found', 'Lost & Found', Search], ['/app/borrow', 'Discover', BookOpen],
   ['/app/borrowing', 'Borrowed', BookCheck], ['/app/lending', 'My Lending', LibraryBig],
-  ['/app/messages', 'Messages', MessageCircle], ['/app/profile', 'Profile', UserRound],
+  ['/app/incoming', 'Borrow requests', Bell], ['/app/messages', 'Messages', MessageCircle], ['/app/profile', 'Profile', UserRound],
 ] as const;
 
 export function Shell({children}:{children:React.ReactNode}){
@@ -48,7 +48,7 @@ export function Shell({children}:{children:React.ReactNode}){
     document.addEventListener('dragover',dragOver);document.addEventListener('dragleave',dragLeave);document.addEventListener('drop',drop);
     return()=>{document.removeEventListener('dragover',dragOver);document.removeEventListener('dragleave',dragLeave);document.removeEventListener('drop',drop)};
   },[]);
-  useEffect(()=>{const client=supabase;if(!client||!user)return;const channel=client.channel(`notifications-${user.id}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`recipient_id=eq.${user.id}`},payload=>{const notice=payload.new as {title:string;message:string};notify({title:notice.title,message:notice.message});for(const key of ['notifications','items','my-requests','my-borrowing','my-lending','owner-requests','dashboard-counts'])void queryClient.invalidateQueries({queryKey:[key]})}).subscribe();return()=>{void client.removeChannel(channel)}},[user,notify,queryClient]);
+  useEffect(()=>{const client=supabase;if(!client||!user)return;const channel=client.channel(`notifications-${user.id}`).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`recipient_id=eq.${user.id}`},payload=>{const notice=payload.new as {title:string;message:string};notify({title:notice.title,message:notice.message});for(const key of ['notifications','items','my-requests','my-borrowing','my-lending','owner-requests','incoming-requests','dashboard-counts'])void queryClient.invalidateQueries({queryKey:[key]})}).subscribe(status=>{if(status==='SUBSCRIBED')for(const key of ['notifications','my-requests','my-borrowing','my-lending','owner-requests','dashboard-counts'])void queryClient.invalidateQueries({queryKey:[key]})});return()=>{void client.removeChannel(channel)}},[user,notify,queryClient]);
 
   const displayName=profile?.full_name||user?.user_metadata.full_name||'Campus member';
   const focusedRoute=/\/new(?:\/|$)|\/edit(?:\/|$)|^\/app\/messages\/[^/]+\/[^/]+$/.test(location.pathname);

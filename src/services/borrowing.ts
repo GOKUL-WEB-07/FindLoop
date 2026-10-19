@@ -23,8 +23,10 @@ export async function requestBorrow(input:BorrowInput){
  if(input.startDate<localToday||input.startDate<item.available_from)throw new Error('Choose a start date on or after the item is available.');
  if(!Number.isFinite(duration)||duration>item.max_borrow_days)throw new Error('This item can be borrowed for up to '+item.max_borrow_days+' days.');
  const idCardPath=input.idCard?await uploadIdCard(input.idCard,user.id):null;
- const{error}=await supabase.from('borrow_requests').insert({item_id:input.itemId,borrower_id:user.id,start_date:input.startDate,return_date:input.returnDate,message:input.message.trim(),student_name:input.studentName.trim(),student_email:input.studentEmail.trim().toLowerCase(),student_id_card_url:idCardPath});
+ const{data:submitted,error}=await supabase.from('borrow_requests').insert({item_id:input.itemId,borrower_id:user.id,start_date:input.startDate,return_date:input.returnDate,message:input.message.trim(),student_name:input.studentName.trim(),student_email:input.studentEmail.trim().toLowerCase(),student_id_card_url:idCardPath}).select('id,item_id,status').single();
  if(error){if(idCardPath)await supabase.storage.from('student-id-cards').remove([idCardPath]);if(error.code==='23505')throw new Error('You already have a pending request for this item.');throw error;}
+ if(!submitted)throw new Error('The request could not be confirmed. Please check My requests before trying again.');
+ return submitted;
 }
 export async function approveRequest(requestId:string){if(!supabase)throw new Error('Supabase is not configured.');const{error}=await supabase.rpc('approve_borrow_request',{p_request_id:requestId});if(error)throw error;}
 export async function rejectRequest(requestId:string){if(!supabase)throw new Error('Supabase is not configured.');const{error}=await supabase.rpc('reject_borrow_request',{p_request_id:requestId});if(error)throw error;}
