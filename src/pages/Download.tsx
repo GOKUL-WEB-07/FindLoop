@@ -1,7 +1,7 @@
 import {BrandLogo} from '../components/BrandLogo';
 import {useState} from 'react';
 import {useInstall} from '../lib/install';
-import {ArrowLeft,Download,Smartphone} from 'lucide-react';
+import {ArrowLeft,Download} from 'lucide-react';
 import {Link} from 'react-router-dom';
 
 function apkDownloadUrl():string|null{
@@ -20,10 +20,11 @@ export function DownloadPage(){
   return <div className="auth apk-page">
     <Link className="brand" to="/"><BrandLogo/></Link>
     <section className="auth-card" aria-labelledby="apk-title">
-      <Smartphone size={36} aria-hidden="true"/>
+      <img className="install-icon-preview" src={`${import.meta.env.BASE_URL}icons/findloop-192-v2.png`} width="72" height="72" alt="Current FindLoop app icon"/>
       <p className="eyebrow">INSTALL FINDLOOP</p>
       <h1 id="apk-title">Your campus, on the go.</h1>
       <p>Add FindLoop to your home screen or desktop directly from your browser.</p>
+      <details className="install-icon-help"><summary>Home-screen icon or startup logo still looks old?</summary><p>The current app icon is shown above. Your phone can retain the icon from an earlier installation even after the website updates.</p><ol><li>Uninstall the old FindLoop app. Removing only its home-screen shortcut may leave the installed app in place.</li><li>Open this page in your browser: Chrome on Android, or Safari on iPhone/iPad.</li><li>Install FindLoop again, or choose Share → Add to Home Screen on iPhone/iPad.</li></ol><p>Your saved listings remain in your account. You may need to sign in again.</p></details>
       {state==='installed'?<p role="status">FindLoop is installed on this device.</p>:state==='ready'?<button className="button apk-download" onClick={async()=>{setError('');try{await install()}catch{setError('The install prompt could not open. Use your browser menu to install FindLoop.')}}}><Download size={18} aria-hidden="true"/>Install FindLoop</button>:<div className="apk-note"><p>On Android or desktop, open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>, if available.</p><p>On iPhone or iPad, open this site in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p></div>}
       {error&&<p role="alert" className="form-error">{error}</p>}
       <p className="apk-note">An internet connection is needed for listings and messages.</p>
